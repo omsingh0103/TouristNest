@@ -15,7 +15,7 @@
 
           <!-- ✅ FIXED IMAGE SECTION (multiple images support) -->
           <img
-            src="<%= (Array.isArray(home.photo) ? home.photo[0] : home.photo) || '/images/default-home.jpg' %>"
+            src="<%= (Array.isArray(home.photo) && home.photo.length > 0 ? home.photo[0] : home.photo) || '/images/house1.png' %>"
             alt="<%= home.houseName %>"
             class="w-full h-48 object-cover"
           />

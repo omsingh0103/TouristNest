@@ -6,7 +6,7 @@ const fs = require('fs');
 const express = require('express');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
-const { default: mongoose } = require('mongoose');
+const mongoose = require('mongoose');
 const multer = require('multer');
 const DB_PATH = "mongodb+srv://ompratapsingh0103:Om01singh03@completecoding.wxhljmi.mongodb.net/airbnb?retryWrites=true&w=majority&appName=CompleteCoding";
 
@@ -34,44 +34,12 @@ const store = new MongoDBStore({
   collection: 'sessions'
 });
 
-const randomString = (length) => {
-  const characters = 'abcdefghijklmnopqrstuvwxyz';
-  let result = '';
-  for (let i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return result;
-}
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "uploads"));
-  },
-  filename: (req, file, cb) => {
-    const safeName = file.originalname.replace(/[ ()]/g, "_");
-    cb(null, randomString(10) + '-' + file.originalname);
-  }
-});
-
-const fileFilter = (req, file, cb) => {
-  if (file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg') {
-    cb(null, true);
-  } else {
-    cb(null, false);
-  }
-}
-
-const multerOptions = {
-  storage, fileFilter
-};
+// Multer is configured in utils/multer.js
 
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.json({ limit: '50mb' }));
-//app.use(multer(multerOptions).single('photo'));
-app.use(express.static(path.join(rootDir, 'public')))
+app.use(express.static(path.join(rootDir, 'public')));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-app.use("/host/uploads", express.static(path.join(__dirname, "uploads")));
-app.use("/homes/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use(session({
   secret: "KnowledgeGate AI with Complete Coding",

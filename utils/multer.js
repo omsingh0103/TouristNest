@@ -3,7 +3,9 @@ const path = require("path");
 
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "..", "uploads"));
+    // Ensure we point to the absolute path of the uploads folder in the root
+    const uploadPath = path.join(path.dirname(require.main.filename), "uploads");
+    cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
     cb(
@@ -14,16 +16,12 @@ const fileStorage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-  console.log("🔍 File filter - Checking file:", file.originalname, "MIME type:", file.mimetype);
-  if (
-    file.mimetype === "image/png" ||
-    file.mimetype === "image/jpg" ||
-    file.mimetype === "image/jpeg"
-  ) {
-    console.log("✅ File accepted:", file.originalname);
+  console.log("🔍 Multer Filter - File:", file.originalname, "Type:", file.mimetype);
+  const allowedTypes = ["image/png", "image/jpg", "image/jpeg", "image/webp"];
+  if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    console.log("❌ File rejected:", file.originalname, "- MIME type not allowed:", file.mimetype);
+    console.log("❌ File rejected due to invalid type");
     cb(null, false);
   }
 };
@@ -31,7 +29,7 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage: fileStorage,
   fileFilter: fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB per image
+  limits: { fileSize: 5 * 1024 * 1024 },
 });
 
 module.exports = upload;

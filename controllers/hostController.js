@@ -58,9 +58,12 @@ exports.getHostHomes = async (req, res, next) => {
 
 exports.postAddHome = async (req, res) => {
   try {
-    console.log("🏠 postAddHome called");
-    console.log("🏠 req.files:", req.files);
-    console.log("🏠 req.body:", req.body);
+    console.log("🏠 postAddHome - Files received:", req.files);
+    console.log("🏠 postAddHome - Body info:", req.body.houseName);
+    
+    if (!req.files || req.files.length === 0) {
+       console.log("⚠️ No files were uploaded!");
+    }
     
     // Get photo paths from uploaded files
     const photoPaths = req.files && req.files.length > 0 
@@ -105,9 +108,12 @@ exports.postEditHome = (req, res, next) => {
       home.description = description;
 
       if (req.files && req.files.length > 0) {
+        console.log("🔄 Updating photos for home:", id);
         // Delete old file if exists
         if (home.photo && home.photo.length > 0) {
-          const oldPath = path.join(__dirname, "..", home.photo[0]);
+          // Extract filename from stored path (which includes /uploads/)
+          const fileName = path.basename(home.photo[0]);
+          const oldPath = path.join(path.dirname(require.main.filename), "uploads", fileName);
           fs.unlink(oldPath, (err) => {
             if (err) console.log("⚠️ Error while deleting old file:", err);
           });
