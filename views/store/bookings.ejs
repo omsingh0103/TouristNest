@@ -1,0 +1,30 @@
+<%- include('../partials/head') %>
+  </head>
+  <body>
+    <%- include('../partials/nav') %>
+    <main class="container mx-auto mt-20 text-center">
+      <h2 class="text-6xl font-bold text-red-500 mb-4">My Bookings</h2>
+      <p class="text-2xl text-gray-700 mb-8">Bookings will appear here</p>
+
+      <% if (bookings.length === 0) { %>
+        <p class="text-center text-gray-500">No bookings yet.</p>
+      <% } else { %>
+        <div class="grid gap-4">
+          <% bookings.forEach(booking => { %>
+            <div class="p-4 border rounded-lg shadow">
+              <h3 class="font-bold text-lg text-blue-600">
+                <%= booking.home.houseName %>
+              </h3>
+              <p><strong>Name:</strong> <%= booking.name %></p>
+              <p><strong>Check-In:</strong> <%= booking.checkIn.toDateString() %></p>
+              <p><strong>Check-Out:</strong> <%= booking.checkOut.toDateString() %></p>
+              <p><strong>Gender:</strong> <%= booking.gender %></p>
+              <p><strong>Children:</strong> <%= booking.children %></p>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+
+    </main>
+  </body>
+</html>
