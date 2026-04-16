@@ -60,13 +60,13 @@ exports.postAddHome = async (req, res) => {
   try {
     console.log("🏠 postAddHome - Files received:", req.files);
     console.log("🏠 postAddHome - Body info:", req.body.houseName);
-    
+
     if (!req.files || req.files.length === 0) {
-       console.log("⚠️ No files were uploaded!");
+      console.log("⚠️ No files were uploaded!");
     }
-    
+
     // Get photo paths from uploaded files
-    const photoPaths = req.files && req.files.length > 0 
+    const photoPaths = req.files && req.files.length > 0
       ? req.files.map(file => "/uploads/" + file.filename)
       : [];
 
@@ -109,13 +109,16 @@ exports.postEditHome = (req, res, next) => {
 
       if (req.files && req.files.length > 0) {
         console.log("🔄 Updating photos for home:", id);
-        // Delete old file if exists
+        // 🔥 DELETE OLD IMAGES FROM FILESYSTEM
         if (home.photo && home.photo.length > 0) {
-          // Extract filename from stored path (which includes /uploads/)
-          const fileName = path.basename(home.photo[0]);
-          const oldPath = path.join(path.dirname(require.main.filename), "uploads", fileName);
-          fs.unlink(oldPath, (err) => {
-            if (err) console.log("⚠️ Error while deleting old file:", err);
+          const oldPhotos = Array.isArray(home.photo) ? home.photo : [home.photo];
+          oldPhotos.forEach((p) => {
+            const relPath = p.startsWith("/") ? p.substring(1) : p;
+            const fullPath = path.join(process.cwd(), relPath);
+            fs.unlink(fullPath, (err) => {
+              if (err) console.log("⚠️ Could not delete old file:", fullPath, err.message);
+              else console.log("✅ Deleted old file:", fullPath);
+            });
           });
         }
 
@@ -136,14 +139,36 @@ exports.postEditHome = (req, res, next) => {
 
 exports.postDeleteHome = (req, res, next) => {
   const homeId = req.params.homeId;
+  console.log("🗑️ postDeleteHome - Attempting to delete home:", homeId);
 
   Home.findById(homeId)
     .then((home) => {
-      if (!home) return res.redirect("/host/host-home-list");
+      if (!home) {
+        console.log("⚠️ Home not found for deletion");
+        return res.redirect("/host/host-home-list");
+      }
+      
+      console.log("📂 Home found. Current photos:", home.photo);
 
       // ✅ check ownership before delete
       if (home.ownerId.toString() !== req.user._id.toString()) {
         return res.status(403).send("Forbidden: Not your home");
+      }
+
+      // 🔥 DELETE IMAGES FROM FILESYSTEM
+      if (home.photo && home.photo.length > 0) {
+        const photosToDelete = Array.isArray(home.photo) ? home.photo : [home.photo];
+        photosToDelete.forEach((p) => {
+          if (p) {
+            // Remove leading slash if exists to make it relative for path.join
+            const relativePath = p.startsWith("/") ? p.substring(1) : p;
+            const fullPath = path.join(process.cwd(), relativePath);
+            fs.unlink(fullPath, (err) => {
+              if (err) console.log("⚠️ Could not delete file:", fullPath, err.message);
+              else console.log("✅ Deleted file:", fullPath);
+            });
+          }
+        });
       }
 
       return Home.findByIdAndDelete(homeId);
@@ -153,5 +178,6 @@ exports.postDeleteHome = (req, res, next) => {
     })
     .catch((error) => {
       console.log("❌ Error while deleting:", error);
+      res.redirect("/host/host-home-list");
     });
 };
