@@ -25,6 +25,12 @@ if (!fs.existsSync(uploadDir)) {
 
 const app = express();
 
+// 📝 REQUEST LOGGER
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
+
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views')); 
 

@@ -7,7 +7,7 @@ const bookingSchema = new mongoose.Schema(
     name: { type: String, required: true },
     checkIn: { type: Date, required: true },
     checkOut: { type: Date, required: true },
-    gender: { type: String, enum: ["Male", "Female"], required: true },
+    gender: { type: String, enum: ["Male", "Female", "Other"], required: true },
     children: { type: Number, default: 0 },
   },
   { timestamps: true }

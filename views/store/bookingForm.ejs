@@ -8,7 +8,8 @@
      <p class="text-3xl font-bold text-red-500 mb-4"> Booking form</p>
     </div>
 
-    <form action="/store/book/<%= home._id %>" method="POST" class="space-y-6">
+    <form action="/book-confirm" method="POST" class="space-y-6">
+      <input type="hidden" name="homeId" value="<%= home._id %>">
       <div>
         <label for="name" class="block mb-2 font-semibold text-gray-700">Full Name</label>
         <input type="text" id="name" name="name" required class="w-full border border-gray-300 p-3 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-300">
@@ -44,6 +45,27 @@
         Confirm Booking
       </button>
     </form>
-  </main>
-</body>
+    <script>
+      // Get local today's date in YYYY-MM-DD format
+      const today = new Date().toLocaleDateString('en-CA');
+
+      const checkInInput = document.getElementById('checkIn');
+      const checkOutInput = document.getElementById('checkOut');
+
+      // Set minimum date for both to today
+      checkInInput.min = today;
+      checkOutInput.min = today;
+
+      // Update checkOut min when checkIn changes
+      checkInInput.addEventListener('change', function() {
+        if (this.value) {
+          checkOutInput.min = this.value;
+          // If checkout is now before checkin, reset it
+          if (checkOutInput.value && checkOutInput.value < this.value) {
+            checkOutInput.value = this.value;
+          }
+        }
+      });
+    </script>
+  </body>
 </html>

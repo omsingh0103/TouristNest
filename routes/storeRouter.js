@@ -14,7 +14,10 @@ storeRouter.get("/favourites", isAuth, storeController.getFavouriteList);
 
 // Show booking form (protected)
 storeRouter.get("/book/:id", isAuth, storeController.showBookingForm);
-storeRouter.post("/book/:id", isAuth, storeController.confirmBooking);
+storeRouter.post("/book-confirm", isAuth, (req, res, next) => {
+  console.log("📍 Route Hit: POST /book-confirm");
+  next();
+}, storeController.confirmBooking);
 
 storeRouter.get("/homes/:homeId", storeController.getHomeDetails);
 storeRouter.post("/favourites", isAuth, storeController.postAddToFavourite);

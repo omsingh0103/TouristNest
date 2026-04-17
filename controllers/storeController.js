@@ -36,18 +36,6 @@ exports.getHomes = async (req, res, next) => {
   }
 };
 
-// 🟢 Bookings Page
-exports.getBookings = (req, res, next) => {
-  if (!req.session.user) {
-    return res.redirect("/login"); // force login if not logged in
-  }
-  res.render("store/bookings", {
-    pageTitle: "My Bookings",
-    currentPage: "bookings",
-    isLoggedIn: true,
-    user: req.session.user,
-  });
-};
 
 // 🟢 Favourites List
 exports.getFavouriteList = async (req, res, next) => {
@@ -164,15 +152,15 @@ exports.showBookingForm = async (req, res) => {
 
 // 🟢 Confirm Booking
 exports.confirmBooking = async (req, res) => {
+  const { homeId, name, checkIn, checkOut, gender, children } = req.body;
+  console.log("Confirming booking for home ID:", homeId);
   try {
     if (!req.session.user) {
       return res.redirect("/login");
     }
 
-    const { name, checkIn, checkOut, gender, children } = req.body;
-
     const booking = new Booking({
-      home: req.params.id,
+      home: homeId,
       user: req.session.user._id, // link to logged-in user
       name,
       checkIn,
@@ -182,7 +170,12 @@ exports.confirmBooking = async (req, res) => {
     });
 
     await booking.save();
-    res.redirect("/store/bookings");
+    res.render("store/booking-success", {
+      pageTitle: "Booking Confirmed",
+      currentPage: "bookings",
+      isLoggedIn: true,
+      user: req.session.user,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).send("Error confirming booking");
