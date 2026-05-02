@@ -85,7 +85,10 @@ exports.postAddHome = async (req, res) => {
     res.redirect("/host/host-home-list");
   } catch (err) {
     console.error("❌ Error creating home:", err);
-    res.status(500).send("Error creating home");
+    if (err.name === 'ValidationError') {
+      console.error("🔍 Validation Errors:", Object.keys(err.errors).map(key => `${key}: ${err.errors[key].message}`));
+    }
+    res.status(500).send(`Error creating home: ${err.message}`);
   }
 };
 
